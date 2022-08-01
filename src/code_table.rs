@@ -1,10 +1,12 @@
-#[derive(Debug, Clone)]
+use crate::system_components;
+
 pub struct Op {
     pub code: u16,
     pub decoded: u16,
     pub _type: String,
     pub address: u16,
     pub logic: String,
+    pub execution: Box<dyn Fn(&mut system_components::System, &Op)>,
 }
 
 struct OpTable {
@@ -22,6 +24,9 @@ pub fn decode_op_code(op_code: u16) -> Op {
             _type: "Display".to_string(),
             address: 0,
             logic: "Clear the display".to_string(),
+            execution: Box::new(move | system, decoded | {
+                system.pc += 2;
+            }),
         },
         0x00EE => Op {
             code: op_code,
@@ -29,6 +34,9 @@ pub fn decode_op_code(op_code: u16) -> Op {
             _type: "Flow".to_string(),
             address: 0,
             logic: "Return from a subroutine".to_string(),
+            execution: Box::new(move | system, decoded | {
+                
+            }),
         },
         x if (x >= 0xA000 && x < 0xB000) => Op {
             code: op_code,
@@ -36,6 +44,10 @@ pub fn decode_op_code(op_code: u16) -> Op {
             _type: "MEM".to_string(),
             address: op_code & 0x0FFF,
             logic: "Sets I to the address NNN".to_string(),
+            execution: Box::new(move | system, decoded | {
+                system.register_i = decoded.address;
+                system.pc += 2;
+            }),
         },
         _ => Op {
             code: op_code,
@@ -43,6 +55,9 @@ pub fn decode_op_code(op_code: u16) -> Op {
             _type: "Unknown".to_string(),
             address: 0,
             logic: "Unknown".to_string(),
+            execution: Box::new(move | system, decoded | {
+                println!("No OP, code not recognized found");
+            }),
         },
     }
 }

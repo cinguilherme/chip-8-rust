@@ -42,8 +42,8 @@ impl Registers {
 
 pub struct System {
     pub registers: Registers,
-    pub register_i: u8,
-    pub pc: usize,
+    pub register_i: u16,
+    pub pc: u16,
     pub memory: [u8; 4096],
     pub graphics: [u8; 64 * 32],
     pub stack: [u8; 16],
@@ -57,7 +57,7 @@ impl System {
     pub fn new() -> Self {
         System {
             registers: Registers::new(),
-            register_i: 0u8,
+            register_i: 0u16,
             pc: 0,
             memory: [0u8; 4096],
             graphics: [0u8; 64 * 32],
