@@ -1,14 +1,13 @@
-mod system_components;
 mod code_table;
+mod system_components;
 
-use system_components::*;
 use code_table::{decode_op_code, Op};
+use system_components::*;
 
 use std::thread;
 use std::time;
 
 impl System {
-
     pub fn emulate_cycle(&mut self) {
         let op_code = self.fetch_op_code();
         let decoded_op: Op = decode_op_code(op_code);
@@ -27,18 +26,22 @@ impl System {
     }
 
     fn update_timer(&mut self) {
-        self.delay_timer -= 1;
-        self.sound_timer -= 1;
+        if self.delay_timer > 0 {
+            self.delay_timer -= 1;
+        }
+        if self.sound_timer > 0 {
+            self.sound_timer -= 1;
+        }
     }
 
     fn fetch_op_code(&self) -> u16 {
         let pc_position = self.pc as usize;
         let first_half = self.memory[pc_position] as u16;
-        let second_half = self.memory[pc_position + 1] as u16; 
+        let second_half = self.memory[pc_position + 1] as u16;
         let op_code = first_half << 8 | second_half;
         op_code
     }
-
+    
 }
 
 #[cfg(test)]

@@ -43,6 +43,7 @@ impl Registers {
 pub struct System {
     pub registers: Registers,
     pub register_i: u16,
+    pub op_code: u16,
     pub pc: u16,
     pub memory: [u8; 4096],
     pub graphics: [u8; 64 * 32],
@@ -53,19 +54,64 @@ pub struct System {
     pub input: [u8; 16],
 }
 
+fn get_font_set() -> [u8; 80] {   
+[
+  0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
+  0x20, 0x60, 0x20, 0x20, 0x70, // 1
+  0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+  0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
+  0x90, 0x90, 0xF0, 0x10, 0x10, // 4
+  0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
+  0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
+  0xF0, 0x10, 0x20, 0x40, 0x40, // 7
+  0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
+  0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
+  0xF0, 0x90, 0xF0, 0x90, 0x90, // A
+  0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
+  0xF0, 0x80, 0x80, 0x80, 0xF0, // C
+  0xE0, 0x90, 0x90, 0x90, 0xE0, // D
+  0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
+  0xF0, 0x80, 0xF0, 0x80, 0x80  // F
+]
+}
+
 impl System {
     pub fn new() -> Self {
         System {
             registers: Registers::new(),
-            register_i: 0u16,
+            register_i: 0,
             pc: 0,
+            sp: 0,
+            op_code: 0,
             memory: [0u8; 4096],
             graphics: [0u8; 64 * 32],
             stack: [0u8; 16],
-            sp: 0,
             delay_timer: 0u8,
             sound_timer: 0u8,
             input: [0u8; 16],
         }
     }
+
+    pub fn initialize(&mut self) {
+        self.pc = 0x200;
+        self.op_code = 0;
+        self.register_i = 0;
+        self.sp = 0;
+        
+        // load font set
+        let font_set = get_font_set();
+        for i in 0..80 {
+            self.memory[i] = font_set[i];
+        }
+
+        // reset timers
+
+    }
+
+    pub fn load_program(&mut self, program: &[u8]) {
+        for i in 0..program.len() {
+            self.memory[0x200 + i] = program[i];
+        }
+    }
+    
 }
