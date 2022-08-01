@@ -1,12 +1,18 @@
 mod op_code_mod;
 mod system_components;
+mod code_table;
+
 use system_components::*;
+use code_table::{decode_op_code, Op};
 
 impl System {
 
     pub fn emulate_cycle(&self) {
         let op_code = self.fetch_op_code();
-        
+        let decoded: Op = decode_op_code(op_code);
+
+        println!("{:?}", decoded);
+
         self.update_timer();
     }
 
